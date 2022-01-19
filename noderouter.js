@@ -390,7 +390,28 @@ Router.patch('/user/photo',upload.single('photo'),(req,res)=>{
         })
       }
     })
+    conn.release()
   })
 })
 
+
+Router.get('/banjichaxun',(req,res)=>{
+  let sql = 'select * from banji';
+  pool.getConnection(function(err, conn) {
+    conn.query(sql,(err,result)=>{
+      console.log('wozai ')
+        if(err){
+          res.json(err)
+        }else{
+          res.json({
+            message:'ok',
+            data: result
+          })
+        }
+      })
+
+      conn.release();
+      
+  })
+})
 module.exports = Router;
