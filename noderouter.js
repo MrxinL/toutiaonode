@@ -409,9 +409,102 @@ Router.get('/banjichaxun',(req,res)=>{
           })
         }
       })
-
       conn.release();
-      
   })
+})
+
+Router.post('/banjia/add',(req,res)=>{
+
+  //获取前台发来的数据
+  var message=req.body;
+  const {inputtime, inputbanji, inputxueke} = message;
+  // if(user.code === '123456'){
+      
+        pool.getConnection(function(err,conn){
+          let sql = `insert into banji (time, name, address) values('${inputtime}', '${inputbanji}', '${inputxueke}')`;
+          conn.query(sql,(err)=>{
+            if(err){
+                res.json({
+                  message:'我是'+err
+                })
+            }else{
+              res.status(200).json({
+              message:'添加成功'
+            })
+            }
+          });
+          conn.release();
+        })
+ 
+})
+
+Router.post('/banjia/delete', (req,res)=>{
+
+  //获取前台发来的数据
+  var message=req.body;
+  const {id} = message; 
+  console.log(message)
+        pool.getConnection(function(err,conn){
+          let sql = `delete from banji where id = '${id}'`;
+          conn.query(sql,(err)=>{
+            if(err){
+                res.json({
+                  message:'我是'+err
+                })
+            }else{
+              res.status(200).json({
+              message:'成功'
+            })
+            }
+          });
+          conn.release();
+        })
+ 
+})
+
+Router.post('/banjia/update/get', (req,res)=>{
+
+  //获取前台发来的数据
+  var message=req.body;
+  const {id} = message; 
+  console.log(message)
+        pool.getConnection(function(err,conn){
+          let sql=`select * from banji where id = '${id}'`
+          conn.query(sql,(err, result)=>{
+            if(err){
+                res.json({
+                  message:'我是'+err
+                })
+            }else{
+              res.status(200).json({
+              message:'成功',
+              data: result
+            })
+            }
+          });
+          conn.release();
+        })
+})
+Router.post('/banjia/update', (req,res)=>{
+
+  //获取前台发来的数据
+  var message=req.body;
+  const {id, time, name, address} = message; 
+        pool.getConnection(function(err,conn){
+          let sql=`update banji set time='${time}',name='${name}',address='${address}' where id='${id}'`;
+          conn.query(sql,(err)=>{
+            if(err){
+              console.log(err)
+                res.json({
+                  message:'我是'+err
+                })
+            }else{
+              res.status(200).json({
+              message:'成功',
+            })
+            }
+          });
+          conn.release();
+        })
 })
 module.exports = Router;
