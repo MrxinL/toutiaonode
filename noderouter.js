@@ -21,9 +21,6 @@ let storage = multer.diskStorage({
 let upload =multer({storage:storage})
 
 
-
-
-
 //创建线程池
 let optpool = new OptPool();
 
@@ -43,9 +40,8 @@ Router.post('/authorizations',(req,res)=>{
   let {mobile , code}=req.body
   
   if( code ==='123456'){
- // console.log(mobile,code)
       pool.getConnection(function(err,conn){
-        let sql=`select *from users where mobile = ${mobile}`
+        let sql=`select * from users where mobile = '${mobile}'`
         conn.query(sql,(err,result)=>{
           if(err){
             res.json(err)
@@ -75,10 +71,6 @@ Router.post('/authorizations',(req,res)=>{
            
       })
 
-
-
-
-
   }else{
     res.status(400).json({
       message:'验证码错误'
@@ -90,13 +82,9 @@ Router.post('/authorizations',(req,res)=>{
 Router.post('/registers',(req,res)=>{
         //获取前台发来的数据
         var user=req.body;
-         
-       
-        if(user.code === '123456'){
-             
+        if(user.code === '123456'){  
               pool.getConnection(function(err,conn){
                 let sql=`insert into users  values ('${user}')`;
-                console.log(sql)
                 conn.query(sql,(err)=>{
                   if(err){
                       res.json({
@@ -169,7 +157,6 @@ Router.get('/user/profile',(req,res)=>{
 
 //评论
 Router.get('/comments',(req,res)=>{
-  console.log("计入评论")
   let query = req.query
   let page = query.page //当前页
   let per_page=query.per_page//每页几条
@@ -180,13 +167,11 @@ Router.get('/comments',(req,res)=>{
   if(response_type ==='comment' && per_page==='4'){
         pool.getConnection(function(err,conn){
           let sql=`select count(*) from comment; select *from comment limit ${start},${per_page} `
-          console.log(sql)
           conn.query(sql,(err,result)=>{
             if(err){
               res.json(err)
             }else{
-              // console.log(result)
-              // res.json(result)
+
               let total_count = result[0][0]['count(*)']
               res.json({
                 message:'ok',
@@ -214,7 +199,7 @@ Router.get('/comments',(req,res)=>{
 Router.put('/comments/status',(req,res)=>{
   let id=req.query.article_id
   let status=req.body.allow_comment
-  // console.log(id,status);
+
   pool.getConnection(function(err,conn){
     let sql =`update comment set comment_status=${status} where id=${id}`
     if(err){
@@ -237,11 +222,10 @@ Router.put('/comments/status',(req,res)=>{
 
 //素材管理  图片上传
 Router.post('/user/images',upload.single('image'),(req,res)=>{
-      //   console.log(req.file)
-      //  console.log(req.file.path,"----------")
+
       pool.getConnection(function(err,conn){
         let sql=`insert into material(url) values("http://localhost:3000/${req.file.path.replace('\\','/')}")`
-        console.log(sql)
+
         if(err){
           res.json(err)
         }else{
@@ -270,9 +254,7 @@ Router.get('/user/images',(req,res)=>{
   let per_page=query.per_page;
 
   let collect = eval(query.collect.toLowerCase()) ? 1 : 0
-  //console.log(eval(query.collect.toLowerCase()) )
   let start =(page -1)* per_page
-       // console.log(typeof per_page)
   if(per_page === '4'){
     
        let sql='';
@@ -284,12 +266,10 @@ Router.get('/user/images',(req,res)=>{
          sql=`select count(*) from material ; select * from material order by id desc limit ${start},${per_page}`
        }
        pool.getConnection(function(err,conn){
-         //console.log(sql+'777777777777777777')
           conn.query(sql,(err,result)=>{
             if(err){
               res.json(err)
             }else{
-              console.log(result[1])
               let total_count =result[0][0]['count(*)']
               res.json({
                 message:'ok',
@@ -316,7 +296,6 @@ Router.get('/user/images',(req,res)=>{
 
 //删除图
 Router.delete('/user/images/:target',(req,res)=>{
-  // console.log(req.params.target)
   let target=req.params.target
   pool.getConnection(function(err,conn){
     let sql=`delete from material where id=${target}`
@@ -359,10 +338,8 @@ Router.put('/user/images/:target',(req,res)=>{
 //个人信息修改
 Router.patch('/user/profile',(req,res)=>{
         let {id ,name , mobile ,intro , email} =req.body
-        console.log(req.body)
         pool.getConnection(function(err,conn){
           let sql=`update users set name='${name}',mobile='${mobile}',intro='${intro}',email='${email}' where id=${id }`
-         console.log(sql)
           conn.query(sql,(err,conn)=>{
             if(err){
               res.json(err)
@@ -380,7 +357,6 @@ Router.patch('/user/profile',(req,res)=>{
 Router.patch('/user/photo',upload.single('photo'),(req,res)=>{
   pool.getConnection(function(err,conn){
     let sql =`update users set photo='http://localhost:3000/${req.file.path.replace('\\','/')}' where id=1`
-    console.log(sql)
     conn.query(sql,(err)=>{
       if(err){
         res.json(err)
@@ -399,7 +375,6 @@ Router.get('/banjichaxun',(req,res)=>{
   let sql = 'select * from banji';
   pool.getConnection(function(err, conn) {
     conn.query(sql,(err,result)=>{
-      console.log('wozai ')
         if(err){
           res.json(err)
         }else{
@@ -443,7 +418,6 @@ Router.post('/banjia/delete', (req,res)=>{
   //获取前台发来的数据
   var message=req.body;
   const {id} = message; 
-  console.log(message)
         pool.getConnection(function(err,conn){
           let sql = `delete from banji where id = '${id}'`;
           conn.query(sql,(err)=>{
@@ -467,7 +441,6 @@ Router.post('/banjia/update/get', (req,res)=>{
   //获取前台发来的数据
   var message=req.body;
   const {id} = message; 
-  console.log(message)
         pool.getConnection(function(err,conn){
           let sql=`select * from banji where id = '${id}'`
           conn.query(sql,(err, result)=>{
@@ -494,13 +467,144 @@ Router.post('/banjia/update', (req,res)=>{
           let sql=`update banji set time='${time}',name='${name}',address='${address}' where id='${id}'`;
           conn.query(sql,(err)=>{
             if(err){
-              console.log(err)
                 res.json({
                   message:'我是'+err
                 })
             }else{
               res.status(200).json({
               message:'成功',
+            })
+            }
+          });
+          conn.release();
+        })
+})
+
+// 业绩信息 
+Router.get('/yejishow',(req,res)=>{
+  let sql = 'select * from students';
+  pool.getConnection(function(err, conn) {
+    conn.query(sql,(err,result)=>{
+        if(err){
+          res.json(err)
+        }else{
+          res.json({
+            message:'ok',
+            data: result
+          })
+        }
+      })
+      conn.release();
+  })
+})
+Router.post('/yejishow/add',(req,res)=>{
+
+  //获取前台发来的数据
+  var message=req.body;
+  const {inputname, inputphone, inputvalue} = message;
+  let value = '';
+  switch(inputvalue) {
+    case '1': value = '数学';
+      break;
+      case '2': value = '外语';
+      break;
+      case '3': value = '语文';
+      break;
+      case '4': value = '物理';
+      break;
+      case '5': value = '化学';
+      break;
+  }
+        pool.getConnection(function(err,conn){
+          let sql = `insert into students (name, phone, value) values('${inputname}', '${inputphone}', '${value}')`;
+          conn.query(sql,(err)=>{
+            if(err){
+                res.json({
+                  message:'我是'+err
+                })
+            }else{
+              res.status(200).json({
+              message:'添加成功'
+            })
+            }
+          });
+          conn.release();
+        })
+ 
+})
+Router.post('/yejishow/delete', (req,res)=>{
+
+  //获取前台发来的数据
+  var message=req.body;
+  const {id} = message; 
+        pool.getConnection(function(err,conn){
+          let sql = `delete from students where id = '${id}'`;
+          conn.query(sql,(err)=>{
+            if(err){
+                res.json({
+                  message:'我是'+err
+                })
+            }else{
+              res.status(200).json({
+              message:'成功'
+            })
+            }
+          });
+          conn.release();
+        })
+ 
+})
+Router.post('/yejishow/update', (req,res)=>{
+
+  //获取前台发来的数据
+  var message=req.body;
+  const {id, phone, name, value} = message;
+  let updatevalue = ''
+    switch(value) {
+      case 1: updatevalue = '数学';
+        break;
+        case 2: updatevalue = '外语';
+        break;
+        case 3: updatevalue = '语文';
+        break;
+        case 4: updatevalue = '物理';
+        break;
+        case 5: updatevalue = '化学';
+        break;
+        default: updatevalue = value;
+    }
+        pool.getConnection(function(err,conn){
+          let sql=`update students set phone='${phone}',name='${name}',value='${updatevalue}' where id='${id}'`;
+          conn.query(sql,(err)=>{
+            if(err){
+                res.json({
+                  message:'我是'+err
+                })
+            }else{
+              res.status(200).json({
+              message:'成功',
+            })
+            }
+          });
+          conn.release();
+        })
+})
+Router.post('/yejishow/update/get', (req,res)=>{
+
+  //获取前台发来的数据
+  var message=req.body;
+  const {id} = message; 
+        pool.getConnection(function(err,conn){
+          let sql=`select * from students where id = '${id}'`
+          conn.query(sql,(err, result)=>{
+            if(err){
+                res.json({
+                  message:'我是'+err
+                })
+            }else{
+              res.status(200).json({
+              message:'成功',
+              data: result
             })
             }
           });
