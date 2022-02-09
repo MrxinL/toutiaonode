@@ -611,4 +611,53 @@ Router.post('/yejishow/update/get', (req,res)=>{
           conn.release();
         })
 })
+// 精准查询
+Router.post('/yijifind/find', (req,res)=>{
+
+  //获取前台发来的数据
+  var message=req.body;
+  const {name} = message; 
+  console.log(name)
+        pool.getConnection(function(err,conn){
+          let sql=`select * from students where name = '${name}'`
+          conn.query(sql,(err, result)=>{
+            if(err){
+                res.json({
+                  message:'我是'+err
+                })
+            }else{
+              res.status(200).json({
+              message:'成功',
+              data: result
+            })
+            }
+          });
+          conn.release();
+        })
+})
+
+Router.post('/yijifind/shensu', (req,res)=>{
+
+  //获取前台发来的数据
+  var message=req.body;
+  const {0: {name, phone, value, yuanyin, shensu}} = message; 
+    pool.getConnection(function(err,conn){
+      let sql=`insert into shensu (name, phone, value, yuanyin) values('${name}', '${phone}','${value}','${yuanyin}'); update students set shensu=${1} where name = '${name}'`;
+      console.log(sql)
+      conn.query(sql,(err, result)=>{
+        if(err){
+            res.json({
+              message:'我是'+err
+            })
+        }else{
+          res.status(200).json({
+          message:'成功',
+          data: result
+        })
+        }
+      });
+      conn.release();
+    })
+        
+})
 module.exports = Router;
