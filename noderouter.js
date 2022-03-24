@@ -343,8 +343,9 @@ Router.patch('/user/profile', (req, res) => {
 })
 
 Router.patch('/user/photo', upload.single('photo'), (req, res) => {
+  const {id} = req.query;
   pool.getConnection(function (err, conn) {
-    let sql = `update users set photo='http://localhost:3000/${req.file.path.replace('\\', '/')}' where id=1`
+    let sql = `update users set photo='http://localhost:3000/${req.file.path.replace('\\', '/')}' where id='${id}'`
     conn.query(sql, (err) => {
       if (err) {
         res.json(err)
@@ -383,7 +384,6 @@ Router.post('/banjia/add', (req, res) => {
   var message = req.body;
   const { inputtime, inputbanji, inputxueke, token } = message;
   // if(user.code === '123456'){
-  console.log(token)
   pool.getConnection(function (err, conn) {
     let sql = `insert into banji (time, name, address, token) values('${inputtime}', '${inputbanji}', '${inputxueke}','${token}')`;
     conn.query(sql, (err) => {
@@ -473,7 +473,6 @@ Router.post('/banjia/update', (req, res) => {
 // 业绩信息 
 Router.get('/yejishow', (req, res) => {
   const { token } = req.query
-  console.log(token)
   let sql = `select * from students where token = '${token}'`;
   pool.getConnection(function (err, conn) {
     conn.query(sql, (err, result) => {
@@ -618,7 +617,6 @@ Router.post('/yejishow/update/get', (req, res) => {
   //获取前台发来的数据
   var message = req.body;
   const { id } = message;
-  console.log(id)
   pool.getConnection(function (err, conn) {
     let sql = `select * from students where id = '${id}'`
     conn.query(sql, (err, result) => {
@@ -660,13 +658,36 @@ Router.post('/yeji/agree', (req, res) => {
     conn.release();
   })
 })
+
+// 驳回申诉 
+Router.post('/yeji/oppose', (req, res) => {
+
+  //获取前台发来的数据
+  var message = req.body;
+  const {id} = message;
+  pool.getConnection(function (err, conn) {
+    let sql = `update students set shensu=0 where id = '${id}'`
+    conn.query(sql, (err, result) => {
+      if (err) {
+        res.json({
+          message: '我是' + err
+        })
+      } else {
+        res.status(200).json({
+          message: '成功',
+          data: result
+        })
+      }
+    });
+    conn.release();
+  })
+})
 // 精准查询
 Router.post('/yijifind/find', (req, res) => {
 
   //获取前台发来的数据
   var message = req.body;
   const { name } = message;
-  console.log(name)
   pool.getConnection(function (err, conn) {
     let sql = `select * from students where name = '${name}'`
     conn.query(sql, (err, result) => {
@@ -690,7 +711,6 @@ Router.post('/yijifind/shensu', (req, res) => {
   //获取前台发来的数据
   var message = req.body;
   const { 0: { name, yuanyin, token}, sstoken } = message;
-  console.log(message)
   pool.getConnection(function (err, conn) {
     let sql = `update students set shensu=${1}, yuanyin= '${yuanyin}', sstoken='${sstoken}' where name = '${name}'`;
     conn.query(sql, (err, result) => {
