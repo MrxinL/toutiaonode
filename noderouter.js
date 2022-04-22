@@ -325,9 +325,9 @@ Router.get('/user/profile', (req, res) => {
 
 //个人信息修改
 Router.patch('/user/profile', (req, res) => {
-  let { id, name, mobile, intro, email } = req.body
+  let { id, name, mobile, intro, email , password} = req.body
   pool.getConnection(function (err, conn) {
-    let sql = `update users set name='${name}',mobile='${mobile}',intro='${intro}',email='${email}' where id=${id}`
+    let sql = `update users set name='${name}',mobile='${mobile}',intro='${intro}',email='${email}',password='${password}' where id=${id}`
     conn.query(sql, (err, conn) => {
       if (err) {
         res.json(err)
